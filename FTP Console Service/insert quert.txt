@@ -1,0 +1,2 @@
+string query = "insert into logs.trRating_temp (channelID, transmissionDate, startTime, endTime, duration, Rating) values (" + channelID + ",'" + transmissionDate + "','" + startTime + "','" + endTime + "'," + duration + "," + Rating + ")";
+                        insertintoDB(query);

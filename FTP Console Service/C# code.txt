@@ -1,0 +1,2750 @@
+10-02-2014
+*********************************************************************************************************
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.IO;
+using System.Net;
+
+namespace FTP_Console_Service
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            string userName, password, fileName, FTPHostName, FTPServer;//172.168.100.198
+            userName = "ftpuser";
+            password = "ftpmm9988";
+            fileName = "\\Ratings";             
+            FTPServer = "172.168.100.198";
+            //Create FTP request & login to server
+            try
+            {
+
+                FtpWebRequest request = (FtpWebRequest)WebRequest.Create("ftp:"+"//172.168.100.198");
+                 //   Create("172.168.100.198");
+                request.Method = WebRequestMethods.Ftp.ListDirectory;
+
+                // This example assumes the FTP site uses anonymous logon.
+                request.Credentials = new NetworkCredential(password, userName);
+/*
+                //FtpWebResponse response = (FtpWebResponse)request.GetResponse();
+                // Copy the contents of the file to the request stream.
+                
+                Console.WriteLine("Upload File Complete, status {0}"+ request.Method);
+
+                //********************************** 
+                */
+
+                FtpWebResponse response = (FtpWebResponse)request.GetResponse();
+
+                Stream responseStream = response.GetResponseStream();
+                StreamReader reader = new StreamReader(responseStream);
+                Console.WriteLine(reader.ReadToEnd());
+
+                Console.WriteLine("Directory List Complete, status {0}", response.StatusDescription);
+
+
+             }
+            catch(FormatException)
+            {
+                Console.WriteLine("Not connected" );
+            }
+            //Get DATE from above and chop off TIME
+
+
+            //Get Today's DATE 
+
+
+            //Compare DATEs
+
+            
+ 
+
+            Console.ReadKey();
+        }
+    }
+}
+
+====================================================================================================
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.IO;
+using System.Net;
+using System.Web;
+
+namespace FTP_Console_Service
+{
+    class ftp
+    {
+        private string host = null;
+  private string user = null;
+  private string pass = null;
+  private FtpWebRequest ftpRequest = null;
+  private FtpWebResponse ftpResponse = null;
+  private Stream ftpStream = null;
+  private int bufferSize = 2048;
+  
+
+  /* Construct Object */
+  public ftp(string hostIP = "ftp://172.168.100.198", string userName = "ftpuser", string password = "ftpmm9988") { host = hostIP; user = userName; pass = password; }
+         
+        
+        static void Main(string[] args)
+        {
+            string userName, password, fileName, FTPrar, FTPServer;//172.168.100.198
+            userName = "ftpuser";
+            password = "ftpmm9988";
+            fileName = "/ratings";             
+            FTPServer = "172.168.100.198";
+            FTPrar = ".rar";
+            //StringBuilder result = new StringBuilder();
+            
+            dirlist(fileName);
+
+        /*    try
+            {
+                FtpWebRequest request = (FtpWebRequest)WebRequest.Create("ftp:"+"//172.168.100.198"+fileName);
+                request.Method = WebRequestMethods.Ftp.ListDirectoryDetails;
+                request.Credentials = new NetworkCredential(password, userName);
+                request.UsePassive = true;
+                request.UseBinary = true;
+                request.KeepAlive = false;
+                FtpWebResponse response = (FtpWebResponse)request.GetResponse();
+                Stream responseStream = response.GetResponseStream();
+                StreamReader reader = new StreamReader(responseStream);
+              //  Console.WriteLine(reader.ReadToEnd());
+                Console.WriteLine(response.StatusDescription);
+                Console.WriteLine("Required folder = "+response.ResponseUri.Segments[1]);
+                string line = reader.ReadToEnd();
+                Console.WriteLine("{0}", line);               
+                //while (line != null)
+                {
+                    //if (System.IO.Path.GetFileName(line) == FTPrar)                    
+                    //{
+                        //result.Append(line);
+                        //result.Append("\n");
+                        //Console.WriteLine("{0}", reader.ReadLine());
+                    //}
+                }
+                //Clean-up
+                reader.Close();
+                responseStream.Close(); //redundant
+                response.Close();
+            }
+            catch(FormatException)
+            {
+                Console.WriteLine("Not connected" );
+            }            
+         */
+            Console.ReadKey();
+        }
+
+        static void dirlist(string directory)
+        {
+            string hostIP = "ftp://172.168.100.198"; string userName = "ftpuser"; string password = "ftpmm9988";
+
+            try
+            {
+                /* Create an FTP Request */
+                FtpWebRequest request = (FtpWebRequest)FtpWebRequest.Create(hostIP + "/" + directory);
+                /* Log in to the FTP Server with the User Name and Password Provided */
+                request.Credentials = new NetworkCredential(userName, password);
+                /* When in doubt, use these options */
+                request.UseBinary = true;
+                request.UsePassive = true;
+                request.KeepAlive = true;
+                /* Specify the Type of FTP Request */
+                request.Method = WebRequestMethods.Ftp.ListDirectory;
+                /* Establish Return Communication with the FTP Server */
+                FtpWebResponse response = (FtpWebResponse)request.GetResponse();
+                /* Establish Return Communication with the FTP Server */
+                Stream responseStream = response.GetResponseStream();
+                /* Get the FTP Server's Response Stream */
+                StreamReader ftpReader = new StreamReader(responseStream);
+                /* Store the Raw Response */
+                string directoryRaw = null;
+                /* Read Each Line of the Response and Append a Pipe to Each Line for Easy Parsing */
+                
+
+
+                try 
+                { 
+                    while (ftpReader.Peek() != -1) 
+                    {
+                        directoryRaw += ftpReader.ReadLine() + "|";
+                    } 
+                }
+                catch (Exception ex) 
+                { 
+                    Console.WriteLine(ex.ToString()); 
+                }
+                /* Resource Cleanup */
+                ftpReader.Close();
+                responseStream.Close();
+                response.Close();
+                request = null;
+                /* Return the Directory Listing as a string Array by Parsing 'directoryRaw' with the Delimiter you Append (I use | in This Example) */
+                try 
+                { 
+                    string[] directoryList = directoryRaw.Split("|".ToCharArray());
+                    for (int a = 12; a < directoryList.Length ; a++)
+                    {
+                         Console.WriteLine( directoryList[a]);
+                    }
+                }
+                catch (Exception ex) 
+                { 
+                    Console.WriteLine(ex.ToString()); 
+                }
+            }
+            catch (Exception ex) { Console.WriteLine(ex.ToString()); }
+    /* Return an Empty string Array if an Exception Occurs */
+            
+        }
+    }
+}
+
+00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.IO;
+using System.Net;
+using System.Web;
+
+namespace FTP_Console_Service
+{
+    class ftp
+    {
+        private string host = null;
+  private string user = null;
+  private string pass = null;
+  private FtpWebRequest ftpRequest = null;
+  private FtpWebResponse ftpResponse = null;
+  private Stream ftpStream = null;
+  private int bufferSize = 2048;
+  
+
+  /* Construct Object */
+  public ftp(string hostIP = "ftp://172.168.100.198", string userName = "ftpuser", string password = "ftpmm9988") { host = hostIP; user = userName; pass = password; }
+         
+        
+        static void Main(string[] args)
+        {
+            string userName, password, fileName, FTPrar, FTPServer;//172.168.100.198
+            userName = "ftpuser";
+            password = "ftpmm9988";
+            fileName = "/ratings";             
+            FTPServer = "172.168.100.198";
+            FTPrar = ".rar";
+            //StringBuilder result = new StringBuilder();
+            
+            dirlist(fileName);
+
+        /*    try
+            {
+                FtpWebRequest request = (FtpWebRequest)WebRequest.Create("ftp:"+"//172.168.100.198"+fileName);
+                request.Method = WebRequestMethods.Ftp.ListDirectoryDetails;
+                request.Credentials = new NetworkCredential(password, userName);
+                request.UsePassive = true;
+                request.UseBinary = true;
+                request.KeepAlive = false;
+                FtpWebResponse response = (FtpWebResponse)request.GetResponse();
+                Stream responseStream = response.GetResponseStream();
+                StreamReader reader = new StreamReader(responseStream);
+              //  Console.WriteLine(reader.ReadToEnd());
+                Console.WriteLine(response.StatusDescription);
+                Console.WriteLine("Required folder = "+response.ResponseUri.Segments[1]);
+                string line = reader.ReadToEnd();
+                Console.WriteLine("{0}", line);               
+                //while (line != null)
+                {
+                    //if (System.IO.Path.GetFileName(line) == FTPrar)                    
+                    //{
+                        //result.Append(line);
+                        //result.Append("\n");
+                        //Console.WriteLine("{0}", reader.ReadLine());
+                    //}
+                }
+                //Clean-up
+                reader.Close();
+                responseStream.Close(); //redundant
+                response.Close();
+            }
+            catch(FormatException)
+            {
+                Console.WriteLine("Not connected" );
+            }            
+         */
+            Console.ReadKey();
+        }
+
+        static void dirlist(string directory)
+        {
+            string hostIP = "ftp://172.168.100.198"; string userName = "ftpuser"; string password = "ftpmm9988";
+
+            try
+            {
+                /* Create an FTP Request */
+                FtpWebRequest ftpRequest = (FtpWebRequest)FtpWebRequest.Create(hostIP + "/" + directory);
+                /* Log in to the FTP Server with the User Name and Password Provided */
+                ftpRequest.Credentials = new NetworkCredential(userName, password);
+                /* When in doubt, use these options */
+                ftpRequest.UseBinary = true;
+                ftpRequest.UsePassive = true;
+                ftpRequest.KeepAlive = true;
+                /* Specify the Type of FTP Request */
+                ftpRequest.Method = WebRequestMethods.Ftp.ListDirectoryDetails;
+                /* Establish Return Communication with the FTP Server */
+                FtpWebResponse ftpResponse = (FtpWebResponse)ftpRequest.GetResponse();
+                /* Establish Return Communication with the FTP Server */
+                Stream ftpStream = ftpResponse.GetResponseStream();
+                /* Get the FTP Server's Response Stream */
+                StreamReader ftpReader = new StreamReader(ftpStream);
+                /* Store the Raw Response */
+                string directoryRaw = null;
+                /* Read Each Line of the Response and Append a Pipe to Each Line for Easy Parsing */
+                //string[] detailDirectoryListing = ftpRequest.Method = WebRequestMethods.Ftp.ListDirectoryDetails("/ratings");
+                //for (int i = 0; i < detailDirectoryListing.Count(); i++) { Console.WriteLine(detailDirectoryListing[i]); }
+                try
+                { 
+                    while (ftpReader.Peek() != -1) 
+                    {
+                        
+                        directoryRaw += ftpReader.ReadLine() + "|";
+                        Console.WriteLine(directoryRaw.Contains("/Ratings "));
+                    }
+                    
+                    Console.WriteLine(directoryRaw.StartsWith("/R"));
+                }
+                catch (Exception ex)
+                { 
+                    Console.WriteLine(ex.ToString());
+                }
+                /* Resource Cleanup */
+                ftpReader.Close();
+                ftpStream.Close();
+                ftpResponse.Close();
+                ftpRequest = null;
+                /* Return the Directory Listing as a string Array by Parsing 'directoryRaw' with the Delimiter you Append (I use | in This Example) */
+                try 
+                { 
+                    string[] directoryList = directoryRaw.Split("|".ToCharArray()); 
+                }
+                catch (Exception ex) 
+                { 
+                    Console.WriteLine(ex.ToString()); 
+                }
+            }
+            catch (Exception ex) 
+            { 
+                Console.WriteLine(ex.ToString());
+            }            
+        }
+    }
+}
+
+=======================================================================================================
+11-02-2014
+=======================================================================================================
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.IO;
+using System.Net;
+using System.Web;
+using FtpLib;
+
+namespace FTP_Console_Service
+{
+    class FTP_Console_Service
+    {
+  
+        static void Main(string[] args)
+        {
+
+            string userName, password, fileName, FTPrar, FTPServer;//172.168.100.198
+            userName = "ftpuser";
+            password = "ftpmm9988";
+            fileName = "/ratings";             
+            FTPServer = "172.168.100.198";
+            FtpConnection ftp = new FtpConnection(FTPServer, userName, password);
+            ftp.Open();
+            ftp.Login();
+            ftp.SendCommand("TYPE I");
+            ftp.SetCurrentDirectory("/ratings");
+           // FtpDirectoryInfo dir = new FtpDirectoryInfo(ftp, "/ratings/");
+            Console.WriteLine(ftp.GetCurrentDirectory());
+            //ftp.SetCurrentDirectory("/ratings");
+            string fName = Path.GetFileNameWithoutExtension(ftp.GetCurrentDirectory());
+
+            foreach (var ftpDir in ftp.GetDirectories("../"))
+            {
+                Console.WriteLine(ftpDir.FullName);
+            }
+            if (ftp.FileExists("ftp://" + FTPServer + "/" + fName))
+            {
+                Console.WriteLine("testing ");
+            }
+            
+            if (ftp.FileExists("/ratings/Ratings 05.02.2014.rar"))
+            {    
+                ftp.GetFiles(".rar");
+                Console.WriteLine( ftp.GetType());
+            }
+            Console.ReadKey();
+        }
+    }
+}
+
+==============================================================================================================
+16-02-14 (move file to other folder)
+************************************************************************************************************************************************
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.IO;
+using System.Net;
+using System.Web;
+using FtpLib;
+using System.Text;
+using System.IO.Compression;
+using SevenZip;
+
+namespace FTP_Console_Service
+{
+    class FTP_Console_Service
+    {
+        public static string userName = "ftpuser", password = "ftpmm9988", folderName = "Ratings", DPath = @"D:/Hassan", FTPServer = "172.168.100.240";//172.168.100.198        
+        //mm@medialogic.com.pk             blank6724                  Ratings               ftp.medialogic.com.pk
+        static void Main(string[] args)
+        {
+            string[] filelist;  
+            filelist = GetFileList();
+            string a;
+            foreach (string filename in filelist)
+            {
+                if (filename.Substring(filename.Length - 4) == ".rar")
+                {
+                    Console.WriteLine(filename);
+                    a = filename.Substring(8,filename.Length - 8);
+                    Download(DPath, a);                    
+                    a = filename.Substring(7, filename.Length - 7);                    
+                    extract(DPath,a);
+                }               
+            }
+            Console.WriteLine("\n \nAll .rar files are downloaded ");                
+            Console.ReadKey();
+        }
+        public static string[] GetFileList()
+        {
+            string[] downloadFiles;
+            StringBuilder result = new StringBuilder();
+            FtpWebRequest reqFTP;
+            try
+            {
+                reqFTP = (FtpWebRequest)FtpWebRequest.Create(new Uri("ftp://" + FTPServer + "/"+folderName));
+                reqFTP.UseBinary = true;
+                reqFTP.Credentials = new NetworkCredential(userName, password);
+                reqFTP.Method = WebRequestMethods.Ftp.ListDirectory;
+                WebResponse response = reqFTP.GetResponse();
+                StreamReader reader = new StreamReader(response.GetResponseStream());                
+                string line = reader.ReadLine();
+                while (line != null)
+                {
+                    result.Append(line);
+                    result.Append("\n");
+                    line = reader.ReadLine();
+                }
+                result.Remove(result.ToString().LastIndexOf('\n'), 1);
+                reader.Close();
+                response.Close();
+                //MessageBox.Show(response.StatusDescription);
+                return result.ToString().Split('\n');
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                downloadFiles = null;
+                return downloadFiles;
+            }
+        }
+
+        static void Download(string filePath, string fileName)
+        {
+            FtpWebRequest reqFTP;
+            try
+            {               
+                FileStream outputStream = new FileStream(filePath + "/" + fileName, FileMode.Create);
+                reqFTP = (FtpWebRequest)FtpWebRequest.Create(new Uri("ftp://" + FTPServer + "/" +folderName + "/"+ fileName));//folder missing
+                reqFTP.Method = WebRequestMethods.Ftp.DownloadFile;
+                reqFTP.UseBinary = true;
+                reqFTP.Credentials = new NetworkCredential(userName, password);
+                FtpWebResponse response = (FtpWebResponse)reqFTP.GetResponse();
+                Stream ftpStream = response.GetResponseStream();
+                long cl = response.ContentLength;
+                int bufferSize = 2048;
+                int readCount;
+                byte[] buffer = new byte[bufferSize];
+                readCount = ftpStream.Read(buffer, 0, bufferSize);
+                while (readCount > 0)
+                {
+                    outputStream.Write(buffer, 0, readCount);
+                    readCount = ftpStream.Read(buffer, 0, bufferSize);                    
+                }
+                ftpStream.Close();
+                outputStream.Close();
+                response.Close();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        }
+
+        static void extract(string Path, string filename)
+        {
+            try
+            {                
+                SevenZip.SevenZipExtractor.SetLibraryPath(@"C:\Program Files\7-Zip\7z.dll");
+                SevenZip.SevenZipExtractor exts = new SevenZip.SevenZipExtractor(DPath + filename);
+               // System.IO.Directory.CreateDirectory("D:\\Hassan\\Extract");
+                exts.ExtractArchive(@"D:\Hassan\Ratings");
+                Console.WriteLine("File Extract");
+                                
+                string fileName = filename.Substring(1, filename.Length - 1);
+                string f = filename.Substring(1, filename.Length - 5)+".txt";
+                string sourcePath = @"D:\Hassan\Ratings";
+                string targetPath = @"D:\Hassan\Backup";
+
+                // Use Path class to manipulate file and directory paths. 
+                string sourceFile = System.IO.Path.Combine(sourcePath, fileName);
+                string destFile = System.IO.Path.Combine(targetPath, fileName);
+                string deletefile = System.IO.Path.Combine(sourcePath, f);
+ 
+                System.IO.File.Move(sourceFile, destFile);
+                Console.WriteLine("File Move Successfully");
+               // Console.ReadKey();
+                System.IO.File.Delete(deletefile);
+                Console.WriteLine("File Delete from source Successfully");
+                //Console.ReadKey();
+               
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+        }
+    }
+}
+
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^66
+17-02-2014   Move .rar files on backup folder (ftp)   +  move .rar files on backup folder (local system)
+((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.IO;
+using System.Net;
+using System.Web;
+using FtpLib;
+using System.Text;
+using System.IO.Compression;
+using SevenZip;
+using FtpLib;
+
+namespace FTP_Console_Service
+{
+    class FTP_Console_Service
+    {
+        public static string userName = "ftpuser", password = "ftpmm9988", folderName = "Ratings", DPath = @"D:/Hassan", FTPServer = "172.168.100.240";//172.168.100.198        
+        //mm@medialogic.com.pk             blank6724                  Ratings               ftp.medialogic.com.pk
+        static void Main(string[] args)
+        {
+            string[] filelist;  
+            filelist = GetFileList();
+            string a;
+            foreach (string filename in filelist)
+            {
+                if (filename.Substring(filename.Length - 4) == ".rar")
+                {
+                    Console.WriteLine(filename);
+                    a = filename.Substring(8,filename.Length - 8);
+                    Download(DPath, a);                    
+                    a = filename.Substring(7, filename.Length - 7);                    
+                    extract(DPath,a);
+                }               
+            }
+            Console.WriteLine("\n \nAll .rar files are downloaded ");                
+            Console.ReadKey();
+        }
+        public static string[] GetFileList()
+        {
+            string[] downloadFiles;
+            StringBuilder result = new StringBuilder();
+            FtpWebRequest reqFTP;
+            try
+            {
+                reqFTP = (FtpWebRequest)FtpWebRequest.Create(new Uri("ftp://" + FTPServer + "/"+folderName));
+                reqFTP.UseBinary = true;
+                reqFTP.Credentials = new NetworkCredential(userName, password);
+                reqFTP.Method = WebRequestMethods.Ftp.ListDirectory;
+                WebResponse response = reqFTP.GetResponse();
+                StreamReader reader = new StreamReader(response.GetResponseStream());                
+                string line = reader.ReadLine();
+                while (line != null)
+                {
+                    result.Append(line);
+                    result.Append("\n");
+                    line = reader.ReadLine();
+                }
+                result.Remove(result.ToString().LastIndexOf('\n'), 1);
+                reader.Close();
+                response.Close();
+                //MessageBox.Show(response.StatusDescription);
+                return result.ToString().Split('\n');
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                downloadFiles = null;
+                return downloadFiles;
+            }
+        }
+
+        static void Download(string filePath, string fileName)
+        {
+            FtpWebRequest reqFTP;
+            try
+            {
+                FileStream outputStream = new FileStream(filePath + "/" + folderName + "/" + fileName, FileMode.Create);
+                reqFTP = (FtpWebRequest)FtpWebRequest.Create(new Uri("ftp://" + FTPServer + "/" +folderName + "/"+ fileName));//folder missing
+                reqFTP.Method = WebRequestMethods.Ftp.DownloadFile;
+                reqFTP.UseBinary = true;
+                reqFTP.Credentials = new NetworkCredential(userName, password);
+                FtpWebResponse response = (FtpWebResponse)reqFTP.GetResponse();
+                Stream ftpStream = response.GetResponseStream();
+
+                long cl = response.ContentLength;
+                int bufferSize = 2048;
+                int readCount;
+                byte[] buffer = new byte[bufferSize];
+                readCount = ftpStream.Read(buffer, 0, bufferSize);
+                while (readCount > 0)
+                {
+                    outputStream.Write(buffer, 0, readCount);
+                    readCount = ftpStream.Read(buffer, 0, bufferSize);                    
+                }
+                ftpStream.Close();
+                outputStream.Close();
+                response.Close();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        }
+
+        static void extract(string Path, string filename)
+        {
+            try
+            {    
+                // for local DB
+                bool isExists = System.IO.Directory.Exists(Path+"/Backup");
+                if (!isExists)
+                {
+                    System.IO.Directory.CreateDirectory(Path + "/Backup");
+                    SevenZip.SevenZipExtractor.SetLibraryPath(@"C:\Program Files\7-Zip\7z.dll");
+                    SevenZip.SevenZipExtractor exts = new SevenZip.SevenZipExtractor(DPath + @"\Ratings" + filename);
+                    exts.ExtractArchive(@"D:\Hassan\Ratings");// file ext
+                    Console.WriteLine("File Extract");
+                    string fileName = filename.Substring(1, filename.Length - 1); // ext .txt file
+                    string f = filename.Substring(1, filename.Length - 5) + ".txt";
+                    string sourcePath = @"D:\Hassan\Ratings"; //source name
+                    string targetPath = @"D:\Hassan\Backup"; // targate name
+
+                    // Use Path class to manipulate file and directory paths. 
+                    string sourceFile = System.IO.Path.Combine(sourcePath, fileName); //combile source and targate to move
+                    string destFile = System.IO.Path.Combine(targetPath, fileName);//combile destination and targate to move
+                    string deletefile = System.IO.Path.Combine(sourcePath, f); // delete .txt file 
+
+                    System.IO.File.Move(sourceFile, destFile); // move file to backup folder 
+                    Console.WriteLine("File Move Successfully");
+                    System.IO.File.Delete(deletefile);// delete .txt files
+                    Console.WriteLine("File Delete from source Successfully");
+                }
+                else
+                {
+                    SevenZip.SevenZipExtractor.SetLibraryPath(@"C:\Program Files\7-Zip\7z.dll");
+                    SevenZip.SevenZipExtractor exts = new SevenZip.SevenZipExtractor(DPath + @"\Ratings" + filename);
+                    exts.ExtractArchive(@"D:\Hassan\Ratings");// file ext
+                    Console.WriteLine("File Extract");
+                    string fileName = filename.Substring(1, filename.Length - 1); // ext .txt file
+                    string f = filename.Substring(1, filename.Length - 5) + ".txt";
+                    string sourcePath = @"D:\Hassan\Ratings"; //source name
+                    string targetPath = @"D:\Hassan\Backup"; // targate name
+
+                    // Use Path class to manipulate file and directory paths. 
+                    string sourceFile = System.IO.Path.Combine(sourcePath, fileName); //combile source and targate to move
+                    string destFile = System.IO.Path.Combine(targetPath, fileName);//combile destination and targate to move
+                    string deletefile = System.IO.Path.Combine(sourcePath, f); // delete .txt file 
+
+                    System.IO.File.Move(sourceFile, destFile); // move file to backup folder 
+                    Console.WriteLine("File Move Successfully");
+                    System.IO.File.Delete(deletefile);// delete .txt files
+                    Console.WriteLine("File Delete from source Successfully");
+                }
+
+               // for Server
+                try
+                {
+                    FtpWebRequest renameRequest = (FtpWebRequest)WebRequest.Create("ftp://172.168.100.240/Ratings" + filename);
+                    renameRequest.UseBinary = true;
+                    renameRequest.UsePassive = true;
+                    renameRequest.Credentials = new NetworkCredential("ftpuser", "ftpmm9988");
+                    renameRequest.KeepAlive = true;
+                    renameRequest.Method = WebRequestMethods.Ftp.Rename;
+                    renameRequest.RenameTo = "/Backup/" +filename;
+                    FtpWebResponse renameResponse = (FtpWebResponse)renameRequest.GetResponse();
+                    renameResponse.Close();
+                 
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+        }
+
+        public static string getChannelName(string rn)
+        {
+            string strExpr = "RatingName='" + rn + "'";
+            DataRow[] dr = dtcm.Select(strExpr);
+            if (dr.Length > 0)
+            {
+                return dr[0]["channelID"].ToString();
+            }
+            else
+            {
+                return "UN";
+            }
+        }
+        public void ProcessFile(string fp)
+        {
+            string filePath = "";
+            StreamWriter SW;
+            string logfile = filePath + "\\Log_" + DateTime.Today.ToLongDateString() + ".log";
+            //if (!File.Exists(logfile)) { File.CreateText(logfile); }
+
+            //File.AppendText(logfile);
+
+            string[] filePaths = Directory.GetFiles(fp, "*.txt");
+          //  dbcon.Open();
+            string channelID, transmissionDate, startTime, endTime, duration, Rating;
+            string oneline;
+            Int32 rcount = 0;
+            Int16 fcount = 0;
+
+            string tcount = filePaths.Length.ToString();
+            foreach (string filename in filePaths)
+            {
+                TextReader tr = new StreamReader(filename);
+                rcount = 0;
+                //rcount++;
+                //button1.Text = rcount.ToString();
+                //Application.DoEvents();
+                fcount++;
+                //label1.Text = "File Process: " + fcount.ToString() + " out of " + tcount;
+                while ((oneline = tr.ReadLine()) != null)
+                {
+                    string[] line = oneline.Split(new char[] { '\t' });
+                    channelID = getChannelName(line[1]);
+                    if (!channelID.Equals("UN"))
+                    {
+                        transmissionDate = line[0];
+                        transmissionDate = "20" + transmissionDate.Substring(6, 2) + "-" + transmissionDate.Substring(3, 2) + "-" + transmissionDate.Substring(0, 2);
+
+                        startTime = line[2];
+                        duration = line[3];
+                        endTime = Convert.ToDateTime(startTime).AddSeconds(Convert.ToDouble(duration)).ToString("HH:mm:ss");  //line[3];
+                        Rating = line[4];
+                        string query = "insert into logs.trRating (channelID, transmissionDate, startTime, endTime, duration, Rating) values (" + channelID + ",'" + transmissionDate + "','" + startTime + "','" + endTime + "'," + duration + "," + Rating + ")";
+                        ////insertintoDB(query);
+                    }
+                    else
+                    {
+
+                    }
+                    rcount++;
+                    //button1.Text = rcount.ToString();
+                    //Application.DoEvents();
+                }
+                tr.Close();
+                Directory.Move(filename, @"D:\Hassan\Backup" + "\\" + Path.GetFileName(filename));
+            }
+          //  dbcon.Close();
+        }
+        public static void insertintoDB(string query)
+        {
+            try
+            {
+              //  MySqlCommand msc = new MySqlCommand(query, dbcon);
+             //   msc.ExecuteNonQuery();
+            }
+            catch (Exception e)
+            {
+                //   MessageBox.Show(e.Message);
+            }
+        }
+
+    }
+}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+17-02-2014 move txt file to db
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.IO;
+using System.Net;
+using System.Web;
+using FtpLib;
+using System.Text;
+using System.IO.Compression;
+using SevenZip;
+using FtpLib;
+using MySql.Data.MySqlClient;
+using System.Configuration;
+using System.Data;
+
+namespace FTP_Console_Service
+{
+    class FTP_Console_Service
+    {
+        public static string userName = "ftpuser", password = "ftpmm9988", folderName = "Ratings", DPath = @"D:/Hassan", filp = @"D:\Hassan\Ratings" ,FTPServer = "172.168.100.240";//172.168.100.198        
+        //mm@medialogic.com.pk             blank6724                  Ratings               ftp.medialogic.com.pk
+        public static DataTable dtcm;                
+        static ConnectionStringSettings connect = ConfigurationManager.ConnectionStrings["dbcString"];
+        static MySqlConnection dbcon = new MySqlConnection(connect.ConnectionString);
+        static string constr = connect.ConnectionString;
+        //public static DataTable dtcm;
+        
+        static void Main(string[] args)
+        {
+            string query = "SELECT mlchannelMapping.LogFileName, mlchannelMapping.RatingName, rechannel.channelID FROM mlchannelMapping Inner Join rechannel ON rechannel.channelName = mlchannelMapping.LogFileName";
+            dtcm = GetData(query);
+
+            string[] filelist;  
+            filelist = GetFileList();
+            string a;
+            foreach (string filename in filelist)
+            {
+                if (filename.Substring(filename.Length - 4) == ".rar")
+                {
+                    Console.WriteLine(filename);
+                    a = filename.Substring(8,filename.Length - 8);
+                    Download(DPath, a);                    
+                    a = filename.Substring(7, filename.Length - 7);                    
+                    extract(DPath,a);
+                }               
+            }
+            Console.WriteLine("\n \nAll .rar files are downloaded ");                
+            Console.ReadKey();
+        }
+        public static DataTable GetData(string sqlquery)
+        {
+            if (dbcon.State != ConnectionState.Open) { dbcon.Open(); }
+            MySqlDataAdapter da = new MySqlDataAdapter();
+            da.SelectCommand = new MySqlCommand(sqlquery, dbcon);
+            DataTable dt = new DataTable();
+            da.Fill(dt);
+            dbcon.Close();
+            return dt;
+        }
+        public static string[] GetFileList()
+        {
+            string[] downloadFiles;
+            StringBuilder result = new StringBuilder();
+            FtpWebRequest reqFTP;
+            try
+            {
+                reqFTP = (FtpWebRequest)FtpWebRequest.Create(new Uri("ftp://" + FTPServer + "/"+folderName));
+                reqFTP.UseBinary = true;
+                reqFTP.Credentials = new NetworkCredential(userName, password);
+                reqFTP.Method = WebRequestMethods.Ftp.ListDirectory;
+                WebResponse response = reqFTP.GetResponse();
+                StreamReader reader = new StreamReader(response.GetResponseStream());                
+                string line = reader.ReadLine();
+                while (line != null)
+                {
+                    result.Append(line);
+                    result.Append("\n");
+                    line = reader.ReadLine();
+                }
+                result.Remove(result.ToString().LastIndexOf('\n'), 1);
+                reader.Close();
+                response.Close();
+                //MessageBox.Show(response.StatusDescription);
+                return result.ToString().Split('\n');
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                downloadFiles = null;
+                return downloadFiles;
+            }
+        }
+
+        static void Download(string filePath, string fileName)
+        {
+            FtpWebRequest reqFTP;
+            try
+            {
+                FileStream outputStream = new FileStream(filePath + "/" + folderName + "/" + fileName, FileMode.Create);
+                reqFTP = (FtpWebRequest)FtpWebRequest.Create(new Uri("ftp://" + FTPServer + "/" +folderName + "/"+ fileName));//folder missing
+                reqFTP.Method = WebRequestMethods.Ftp.DownloadFile;
+                reqFTP.UseBinary = true;
+                reqFTP.Credentials = new NetworkCredential(userName, password);
+                FtpWebResponse response = (FtpWebResponse)reqFTP.GetResponse();
+                Stream ftpStream = response.GetResponseStream();
+
+                long cl = response.ContentLength;
+                int bufferSize = 2048;
+                int readCount;
+                byte[] buffer = new byte[bufferSize];
+                readCount = ftpStream.Read(buffer, 0, bufferSize);
+                while (readCount > 0)
+                {
+                    outputStream.Write(buffer, 0, readCount);
+                    readCount = ftpStream.Read(buffer, 0, bufferSize);                    
+                }
+                ftpStream.Close();
+                outputStream.Close();
+                response.Close();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        }
+
+        static void extract(string Path, string filename)
+        {
+            try
+            {    
+                // for local DB
+                bool isExists = System.IO.Directory.Exists(Path+"/Backup");
+                if (!isExists)
+                {
+                    System.IO.Directory.CreateDirectory(Path + "/Backup");
+                    SevenZip.SevenZipExtractor.SetLibraryPath(@"C:\Program Files\7-Zip\7z.dll");
+                    SevenZip.SevenZipExtractor exts = new SevenZip.SevenZipExtractor(DPath + @"\Ratings" + filename);
+                    exts.ExtractArchive(@"D:\Hassan\Ratings");// file ext
+                    Console.WriteLine("File Extract");
+                    string fileName = filename.Substring(1, filename.Length - 1); // ext .txt file
+                    string f = filename.Substring(1, filename.Length - 5) + ".txt";
+                    string sourcePath = @"D:\Hassan\Ratings"; //source name
+                    string targetPath = @"D:\Hassan\Backup"; // targate name
+
+                    // Use Path class to manipulate file and directory paths. 
+                    string sourceFile = System.IO.Path.Combine(sourcePath, fileName); //combile source and targate to move
+                    string destFile = System.IO.Path.Combine(targetPath, fileName);//combile destination and targate to move
+                    string deletefile = System.IO.Path.Combine(sourcePath, f); // delete .txt file 
+
+                    System.IO.File.Move(sourceFile, destFile); // move file to backup folder 
+                    Console.WriteLine("File Move Successfully");
+                    System.IO.File.Delete(deletefile);// delete .txt files
+                    Console.WriteLine("File Delete from source Successfully");
+                }
+                else
+                {
+                    SevenZip.SevenZipExtractor.SetLibraryPath(@"C:\Program Files\7-Zip\7z.dll");
+                    SevenZip.SevenZipExtractor exts = new SevenZip.SevenZipExtractor(DPath + @"\Ratings" + filename);
+                    exts.ExtractArchive(@"D:\Hassan\Ratings");// file ext
+                    Console.WriteLine("File Extract");
+                    ProcessFile(filp);
+                    string fileName = filename.Substring(1, filename.Length - 1); // ext .txt file
+                    string f = filename.Substring(1, filename.Length - 5) + ".txt";
+                    string sourcePath = @"D:\Hassan\Ratings"; //source name
+                    string targetPath = @"D:\Hassan\Backup"; // targate name
+
+                    // Use Path class to manipulate file and directory paths. 
+                    string sourceFile = System.IO.Path.Combine(sourcePath, fileName); //combile source and targate to move
+                    string destFile = System.IO.Path.Combine(targetPath, fileName);//combile destination and targate to move
+                    string deletefile = System.IO.Path.Combine(sourcePath, f); // delete .txt file 
+
+                    System.IO.File.Move(sourceFile, destFile); // move file to backup folder 
+                    Console.WriteLine("File Move Successfully");
+                    System.IO.File.Delete(deletefile);// delete .txt files
+                    Console.WriteLine("File Delete from source Successfully");
+                }
+               // for Server
+                try
+                {
+                    FtpWebRequest renameRequest = (FtpWebRequest)WebRequest.Create("ftp://172.168.100.240/Ratings" + filename);
+                    renameRequest.UseBinary = true;
+                    renameRequest.UsePassive = true;
+                    renameRequest.Credentials = new NetworkCredential("ftpuser", "ftpmm9988");
+                    renameRequest.KeepAlive = true;
+                    renameRequest.Method = WebRequestMethods.Ftp.Rename;
+                    renameRequest.RenameTo = "/Backup/" +filename;
+                    FtpWebResponse renameResponse = (FtpWebResponse)renameRequest.GetResponse();
+                    renameResponse.Close();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+        }
+
+        public static string getChannelName(string rn)
+        {
+            string strExpr = "RatingName='" + rn + "'";
+            DataRow[] dr = dtcm.Select(strExpr);
+            if (dr.Length > 0)
+            {
+                return dr[0]["channelID"].ToString();
+            }
+            else
+            {
+            return "UN";
+            }
+        }
+        public static void ProcessFile(string fp)
+        {
+            string filePath = "";
+            StreamWriter SW;
+            string logfile = filePath + "\\Log_" + DateTime.Today.ToLongDateString() + ".log";
+            //if (!File.Exists(logfile)) { File.CreateText(logfile); }
+            //File.AppendText(logfile);
+            string[] filePaths = Directory.GetFiles(fp, "*.txt");
+            dbcon.Open();
+            string channelID, transmissionDate, startTime, endTime, duration, Rating;
+            string oneline;
+            Int32 rcount = 0;
+            Int16 fcount = 0;
+            string tcount = filePaths.Length.ToString();
+            foreach (string filename in filePaths)
+            {
+                TextReader tr = new StreamReader(filename);
+                rcount = 0;
+                //rcount++;                
+                //Application.DoEvents();
+                fcount++;               
+                while ((oneline = tr.ReadLine()) != null)
+                {
+                    string[] line = oneline.Split(new char[] { '\t' });
+                    channelID = getChannelName(line[1]);
+                    if (!channelID.Equals("UN"))
+                    {
+                        transmissionDate = line[0];
+                        transmissionDate = "20" + transmissionDate.Substring(6, 2) + "-" + transmissionDate.Substring(3, 2) + "-" + transmissionDate.Substring(0, 2);
+                        startTime = line[2];
+                        duration = line[3];
+                        endTime = Convert.ToDateTime(startTime).AddSeconds(Convert.ToDouble(duration)).ToString("HH:mm:ss");  //line[3];
+                        Rating = line[4];
+                        string query = "insert into logs.trRating_temp (channelID, transmissionDate, startTime, endTime, duration, Rating) values (" + channelID + ",'" + transmissionDate + "','" + startTime + "','" + endTime + "'," + duration + "," + Rating + ")";
+                        insertintoDB(query);
+                    }
+                    else
+                    {  }
+                    rcount++;                   
+                }
+                tr.Close();
+               // Directory.Move(filename, @"D:\Hassan\Backup" + "\\" + Path.GetFileName(filename));
+            }
+            dbcon.Close();
+        }
+        public static void insertintoDB(string query)
+        {
+            try
+            {
+                MySqlCommand msc = new MySqlCommand(query, dbcon);
+                msc.ExecuteNonQuery();
+            }
+            catch (Exception e)
+            {
+               Console.WriteLine(e.Message);
+            }
+        }
+
+    }
+}
+
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+18-02-2014 
+ Calculate 
+a) total no of files , 
+b) processing file , 
+c)record found counter
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.IO;
+using System.Net;
+using System.Web;
+using FtpLib;
+using System.Text;
+using System.IO.Compression;
+using SevenZip;
+using FtpLib;
+using MySql.Data.MySqlClient;
+using System.Configuration;
+using System.Data;
+
+namespace FTP_Console_Service
+{
+    class FTP_Console_Service
+    {
+        public static string userName = "ftpuser", password = "ftpmm9988", folderName = "Ratings", DPath = @"D:/Hassan", filp = @"D:\Hassan\Ratings" ,FTPServer = "172.168.100.240";//172.168.100.198        
+        //mm@medialogic.com.pk             blank6724                  Ratings               ftp.medialogic.com.pk
+        public static string Totalfiles = "",recordcounter = "";
+        public static DataTable dtcm;                
+        static ConnectionStringSettings connect = ConfigurationManager.ConnectionStrings["dbcString"];
+        static MySqlConnection dbcon = new MySqlConnection(connect.ConnectionString);
+        static string constr = connect.ConnectionString;
+        //public static DataTable dtcm;
+        
+        static void Main(string[] args)
+        {
+            string query = "SELECT mlchannelMapping.LogFileName, mlchannelMapping.RatingName, rechannel.channelID FROM mlchannelMapping Inner Join rechannel ON rechannel.channelName = mlchannelMapping.LogFileName";
+            dtcm = GetData(query);//go to get data method
+
+            string[] filelist;  
+            filelist = GetFileList();// goto get file list method
+            string a;
+            int b = 0;
+            try
+            {
+
+                foreach (string filename in filelist)
+                {
+                    if (filename.Substring(filename.Length - 4) == ".rar")
+                    {
+                        //Console.WriteLine(filename);
+                        a = filename.Substring(8, filename.Length - 8);
+                        Download(DPath, a);  //goto download method                    
+                        b++;
+                        Totalfiles = b.ToString();
+
+                    }
+                }
+                foreach (string filename in filelist)
+                {
+                    if (filename.Substring(filename.Length - 4) == ".rar")
+                    {
+
+                        a = filename.Substring(7, filename.Length - 7);
+                        extract(DPath, a);  //goto extract method
+                    }
+                }
+                
+                ProcessFile(filp);
+                foreach (string filename in filelist)
+                {
+                    if (filename.Substring(filename.Length - 4) == ".txt")
+                    {
+                        a = filename.Substring(7, filename.Length - 7);
+                        deletetxtfile(a);
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("No file found");
+            }
+
+            //Console.WriteLine("\n \nAll .rar files are downloaded ");                
+            Console.ReadKey();
+        }
+        public static DataTable GetData(string sqlquery)
+        {
+            if (dbcon.State != ConnectionState.Open) { dbcon.Open(); }
+            MySqlDataAdapter da = new MySqlDataAdapter();
+            da.SelectCommand = new MySqlCommand(sqlquery, dbcon);
+            DataTable dt = new DataTable();
+            da.Fill(dt);
+            dbcon.Close();
+            return dt;
+        }
+
+        public static string[] GetFileList()
+        {
+            string[] downloadFiles;
+            StringBuilder result = new StringBuilder();
+            FtpWebRequest reqFTP;
+            try
+            {
+                reqFTP = (FtpWebRequest)FtpWebRequest.Create(new Uri("ftp://" + FTPServer + "/"+folderName));
+                reqFTP.UseBinary = true;
+                reqFTP.Credentials = new NetworkCredential(userName, password);
+                reqFTP.Method = WebRequestMethods.Ftp.ListDirectory;
+                WebResponse response = reqFTP.GetResponse();
+                StreamReader reader = new StreamReader(response.GetResponseStream());                
+                string line = reader.ReadLine();
+                while (line != null)
+                {
+                    result.Append(line);
+                    result.Append("\n");
+                    line = reader.ReadLine();
+                }
+                result.Remove(result.ToString().LastIndexOf('\n'), 1);
+                reader.Close();
+                response.Close();
+                //MessageBox.Show(response.StatusDescription);
+                return result.ToString().Split('\n');
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                downloadFiles = null;
+                return downloadFiles;
+            }
+        }
+
+        static void Download(string filePath, string fileName)
+        {
+            FtpWebRequest reqFTP;
+            try
+            {
+                FileStream outputStream = new FileStream(filePath + "/" + folderName + "/" + fileName, FileMode.Create);
+                reqFTP = (FtpWebRequest)FtpWebRequest.Create(new Uri("ftp://" + FTPServer + "/" +folderName + "/"+ fileName));//folder missing
+                reqFTP.Method = WebRequestMethods.Ftp.DownloadFile;
+                reqFTP.UseBinary = true;
+                reqFTP.Credentials = new NetworkCredential(userName, password);
+                FtpWebResponse response = (FtpWebResponse)reqFTP.GetResponse();
+                Stream ftpStream = response.GetResponseStream();
+
+                long cl = response.ContentLength;
+                int bufferSize = 2048;
+                int readCount;
+                byte[] buffer = new byte[bufferSize];
+                readCount = ftpStream.Read(buffer, 0, bufferSize);
+                while (readCount > 0)
+                {
+                    outputStream.Write(buffer, 0, readCount);
+                    readCount = ftpStream.Read(buffer, 0, bufferSize);                    
+                }
+                ftpStream.Close();
+                outputStream.Close();
+                response.Close();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        }
+
+        static void extract(string Path, string filename)
+        {
+            try
+            {    
+                // for local DB
+                bool isExists = System.IO.Directory.Exists(Path+"/Backup");
+                if (!isExists)
+                {
+                    System.IO.Directory.CreateDirectory(Path + "/Backup");
+                    SevenZip.SevenZipExtractor.SetLibraryPath(@"C:\Program Files\7-Zip\7z.dll");
+                    SevenZip.SevenZipExtractor exts = new SevenZip.SevenZipExtractor(DPath + @"\Ratings" + filename);
+                    exts.ExtractArchive(@"D:\Hassan\Ratings");// file ext
+                    Console.WriteLine("File Extract");
+                    string fileName = filename.Substring(1, filename.Length - 1); // ext .txt file
+                    string f = filename.Substring(1, filename.Length - 5) + ".txt";
+                    string sourcePath = @"D:\Hassan\Ratings"; //source name
+                    string targetPath = @"D:\Hassan\Backup"; // targate name
+
+                    // Use Path class to manipulate file and directory paths. 
+                    string sourceFile = System.IO.Path.Combine(sourcePath, fileName); //combile source and targate to move
+                    string destFile = System.IO.Path.Combine(targetPath, fileName);//combile destination and targate to move
+                    string deletefile = System.IO.Path.Combine(sourcePath, f); // delete .txt file 
+
+                    System.IO.File.Move(sourceFile, destFile); // move file to backup folder
+                    
+                    //System.IO.File.Delete(deletefile);// delete .txt files
+                    //Console.WriteLine("Processing File", f);
+                }
+                else
+                {
+                    SevenZip.SevenZipExtractor.SetLibraryPath(@"C:\Program Files\7-Zip\7z.dll");
+                    SevenZip.SevenZipExtractor exts = new SevenZip.SevenZipExtractor(DPath + @"\Ratings" + filename);
+                    exts.ExtractArchive(@"D:\Hassan\Ratings");// file ext
+                    //Console.WriteLine("File Extract");
+
+                    string fileName = filename.Substring(1, filename.Length - 1); // ext .txt file
+                    string f = filename.Substring(1, filename.Length - 5) + ".txt";
+                    string sourcePath = @"D:\Hassan\Ratings"; //source name
+                    string targetPath = @"D:\Hassan\Backup"; // targate name
+
+                    // Use Path class to manipulate file and directory paths. 
+                    string sourceFile = System.IO.Path.Combine(sourcePath, fileName); //combile source and targate to move
+                    string destFile = System.IO.Path.Combine(targetPath, fileName);//combile destination and targate to move
+                    string deletefile = System.IO.Path.Combine(sourcePath, f); // delete .txt file 
+
+                    System.IO.File.Move(sourceFile, destFile); // move file to backup folder 
+                  //  Console.WriteLine("File Move Successfully");
+                    //System.IO.File.Delete(deletefile);// delete .txt files
+                    
+                }
+               // for Server
+                try
+                {
+                    FtpWebRequest renameRequest = (FtpWebRequest)WebRequest.Create("ftp://172.168.100.240/Ratings" + filename);
+                    renameRequest.UseBinary = true;
+                    renameRequest.UsePassive = true;
+                    renameRequest.Credentials = new NetworkCredential("ftpuser", "ftpmm9988");
+                    renameRequest.KeepAlive = true;
+                    renameRequest.Method = WebRequestMethods.Ftp.Rename;
+                    renameRequest.RenameTo = "/Backup/" +filename;
+                    FtpWebResponse renameResponse = (FtpWebResponse)renameRequest.GetResponse();
+                    renameResponse.Close();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+        }
+         static void deletetxtfile(string fname)
+        {
+
+            string f = fname.Substring(1, fname.Length - 5) + ".txt";
+            string sourcePath = @"D:\Hassan\Ratings"; //source name
+            string deletefile = System.IO.Path.Combine(sourcePath, f); // delete .txt file 
+            System.IO.File.Delete(deletefile);// delete .txt files
+        }
+        public static string getChannelName(string rn)
+        {
+            string strExpr = "RatingName='" + rn + "'";
+            DataRow[] dr = dtcm.Select(strExpr);
+            if (dr.Length > 0)
+            {
+                return dr[0]["channelID"].ToString();
+            }
+            else
+            {
+            return "UN";
+            }
+        }
+        public static void ProcessFile(string fp )
+        {
+            string filePath = "";
+            StreamWriter SW;
+            string logfile = filePath + "\\Log_" + DateTime.Today.ToLongDateString() + ".log";
+            //if (!File.Exists(logfile)) { File.CreateText(logfile); }
+            //File.AppendText(logfile);
+            string[] filePaths = Directory.GetFiles(fp, "*.txt");          
+
+
+            dbcon.Open();
+            string channelID, transmissionDate, startTime, endTime, duration, Rating;
+            string oneline;
+            Int32 rcount = 0;
+            Int16 fcount = 0;
+            string tcount = filePaths.Length.ToString();
+            int s = 0;
+            foreach (string filename in filePaths)
+            {
+                TextReader tr = new StreamReader(filename);
+                rcount = 0;
+                //rcount++;                
+                //Application.DoEvents();
+                fcount++;
+                string f = filename.Substring(1, filename.Length - 5) + ".txt";
+                Console.Write("Process File = "+filePath );
+                while ((oneline = tr.ReadLine()) != null)
+                {
+                    string[] line = oneline.Split(new char[] { '\t' });
+                    channelID = getChannelName(line[1]);
+                    if (!channelID.Equals("UN"))
+                    {
+                        s++;
+                        Console.Write("\r"+s);                        
+                        transmissionDate = line[0];
+                        transmissionDate = "20" + transmissionDate.Substring(6, 2) + "-" + transmissionDate.Substring(3, 2) + "-" + transmissionDate.Substring(0, 2);
+                        startTime = line[2];
+                        duration = line[3];
+                        endTime = Convert.ToDateTime(startTime).AddSeconds(Convert.ToDouble(duration)).ToString("HH:mm:ss");  //line[3];
+                        Rating = line[4];
+                        string query = "insert into logs.trRating_temp (channelID, transmissionDate, startTime, endTime, duration, Rating) values (" + channelID + ",'" + transmissionDate + "','" + startTime + "','" + endTime + "'," + duration + "," + Rating + ")";
+                        insertintoDB(query);
+                    }
+                    else
+                    {  }
+                    rcount++;                   
+                }
+                Console.Write(Totalfiles);
+                tr.Close();
+               // Directory.Move(filename, @"D:\Hassan\Backup" + "\\" + Path.GetFileName(filename));
+            }
+            dbcon.Close();
+        }
+        public static void insertintoDB(string query)
+        {
+            try
+            {
+                MySqlCommand msc = new MySqlCommand(query, dbcon);
+                msc.ExecuteNonQuery();
+            }
+            catch (Exception e)
+            {
+               Console.WriteLine("",e);
+            }
+        }
+
+    }
+}
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$44
+18-02-2014 final output
+33333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.IO;
+using System.Net;
+using System.Web;
+using FtpLib;
+using System.Text;
+using System.IO.Compression;
+using SevenZip;
+using FtpLib;
+using MySql.Data.MySqlClient;
+using System.Configuration;
+using System.Data;
+using System.Diagnostics;
+
+namespace FTP_Console_Service
+{
+    class FTP_Console_Service
+    {
+        public static string userName = "ftpuser", password = "ftpmm9988", folderName = "Ratings", DPath = @"D:\Hassan\Ratings", filp = @"D:\Hassan\Ratings", FTPServer = "172.168.100.240";//172.168.100.198        
+        //mm@medialogic.com.pk             blank6724                  Ratings               ftp.medialogic.com.pk
+        public static string Totalfiles = "",recordcounter = "";
+        public static DataTable dtcm;                
+        static ConnectionStringSettings connect = ConfigurationManager.ConnectionStrings["dbcString"];
+        static MySqlConnection dbcon = new MySqlConnection(connect.ConnectionString);
+        static string constr = connect.ConnectionString;
+        //public static DataTable dtcm;
+        public static void CursorTest()
+        {
+            int testsize = 1000000;
+            Console.WriteLine("Testing cursor position");
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+            for (int i = 0; i < testsize; i++)
+            {
+                Console.Write("\rCounting: {0}     ", i);
+            }
+            sw.Stop();
+            Console.WriteLine("\nTime using \\r: {0}", sw.ElapsedMilliseconds);
+            sw.Reset();
+            sw.Start();
+            int top = Console.CursorTop;
+            for (int i = 0; i < testsize; i++)
+            {
+                Console.SetCursorPosition(0, top);
+                Console.Write("Counting: {0}     ", i);
+            }
+            sw.Stop();
+            Console.WriteLine("\nTime using CursorLeft: {0}", sw.ElapsedMilliseconds);
+            sw.Reset();
+            sw.Start();
+            Console.Write("Counting:          ");
+            for (int i = 0; i < testsize; i++)
+            {
+                Console.Write("\b\b\b\b\b\b\b\b{0,8}", i);
+            }
+            sw.Stop();
+            Console.WriteLine("\nTime using \\b: {0}", sw.ElapsedMilliseconds);
+        }
+        static void Main(string[] args)
+        {
+          ///  CursorTest();
+            //return;
+            string query = "SELECT mlchannelMapping.LogFileName, mlchannelMapping.RatingName, rechannel.channelID FROM mlchannelMapping Inner Join rechannel ON rechannel.channelName = mlchannelMapping.LogFileName";
+            dtcm = GetData(query);//go to get data method
+
+            string[] filelist;  
+            filelist = GetFileList();// goto get file list method
+            string a;
+            int b = 0;
+            try
+            {
+                if (filelist.Length != null)
+                {
+                    foreach (string filename in filelist)
+                    {
+                        if (filename.Substring(filename.Length - 4) == ".rar")
+                        {
+                            //Console.WriteLine(filename);
+                            a = filename.Substring(8, filename.Length - 8);
+                            Download(DPath, a);  //goto download method                    
+                            b++;
+                            Totalfiles = b.ToString();
+
+                        }
+                    }
+                    foreach (string filename in filelist)
+                    {
+                        if (filename.Substring(filename.Length - 4) == ".rar")
+                        {
+
+                            a = filename.Substring(7, filename.Length - 7);
+                            extract(DPath, a);  //goto extract method
+                        }
+                    }
+                }
+                else { }
+                
+                ProcessFile(filp);
+                foreach (string filename in filelist)
+                {
+                    if (filename.Substring(filename.Length - 4) == ".txt")
+                    {
+                        a = filename.Substring(7, filename.Length - 7);
+                        deletetxtfile(a);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex + "No file found");
+            }
+
+            //Console.WriteLine("\n \nAll .rar files are downloaded ");                
+            Console.ReadKey();
+        }
+        public static DataTable GetData(string sqlquery)
+        {
+            if (dbcon.State != ConnectionState.Open) { dbcon.Open(); }
+            MySqlDataAdapter da = new MySqlDataAdapter();
+            da.SelectCommand = new MySqlCommand(sqlquery, dbcon);
+            DataTable dt = new DataTable();
+            da.Fill(dt);
+            dbcon.Close();
+            return dt;
+        }
+
+        public static string[] GetFileList()
+        {
+            string[] downloadFiles;
+            StringBuilder result = new StringBuilder();
+            FtpWebRequest reqFTP;
+            try
+            {
+                reqFTP = (FtpWebRequest)FtpWebRequest.Create(new Uri("ftp://" + FTPServer + "/"+folderName));
+                reqFTP.UseBinary = true;
+                reqFTP.Credentials = new NetworkCredential(userName, password);
+                reqFTP.Method = WebRequestMethods.Ftp.ListDirectory;
+                WebResponse response = reqFTP.GetResponse();
+                StreamReader reader = new StreamReader(response.GetResponseStream());                
+                string line = reader.ReadLine();
+                while (line != null)
+                {
+                    result.Append(line);
+                    result.Append("\n");
+                    line = reader.ReadLine();
+                }
+                if (result.ToString() == null)
+                {
+                    Console.WriteLine("No record found on FTP");
+                }
+                else
+                {
+                    result.Remove(result.ToString().LastIndexOf('\n'), 1);
+                    reader.Close();
+                    response.Close();
+                    return result.ToString().Split('\n');
+                }                  
+                string[] arr1 = { };
+                return arr1;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                downloadFiles = null;
+                return downloadFiles;
+            }
+        }
+
+        static void Download(string filePath, string fileName)
+        {
+            FtpWebRequest reqFTP;
+            try
+            {
+                FileStream outputStream = new FileStream(filePath + "\\" + fileName, FileMode.Create);
+                reqFTP = (FtpWebRequest)FtpWebRequest.Create(new Uri("ftp://" + FTPServer + "/" +folderName + "/"+ fileName));//folder missing
+                reqFTP.Method = WebRequestMethods.Ftp.DownloadFile;
+                reqFTP.UseBinary = true;
+                reqFTP.Credentials = new NetworkCredential(userName, password);
+                FtpWebResponse response = (FtpWebResponse)reqFTP.GetResponse();
+                Stream ftpStream = response.GetResponseStream();
+
+                long cl = response.ContentLength;
+                int bufferSize = 2048;
+                int readCount;
+                byte[] buffer = new byte[bufferSize];
+                readCount = ftpStream.Read(buffer, 0, bufferSize);
+                while (readCount > 0)
+                {
+                    outputStream.Write(buffer, 0, readCount);
+                    readCount = ftpStream.Read(buffer, 0, bufferSize);                    
+                }
+                ftpStream.Close();
+                outputStream.Close();
+                response.Close();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        }
+
+        static void extract(string Path, string filename)
+        {
+            try
+            {    
+                // for local DB
+                bool isExists = System.IO.Directory.Exists(Path+"\\Backup");
+                bool present = System.IO.File.Exists(Path + "\\Backup" + filename);
+                if (!isExists)
+                {
+                    System.IO.Directory.CreateDirectory(Path + "\\Backup");
+                    SevenZip.SevenZipExtractor.SetLibraryPath(@"C:\Program Files\7-Zip\7z.dll");
+                    SevenZip.SevenZipExtractor exts = new SevenZip.SevenZipExtractor(DPath + @"\Ratings" + filename);
+                    exts.ExtractArchive(@"D:\Hassan\Ratings");// file ext
+                    Console.WriteLine("File Extract");
+                    string fileName = filename.Substring(1, filename.Length - 1); // ext .txt file
+                    string f = filename.Substring(1, filename.Length - 5) + ".txt";
+                    string sourcePath = @"D:\Hassan\Ratings"; //source name
+                    string targetPath = @"D:\Hassan\Backup"; // targate name
+
+                    // Use Path class to manipulate file and directory paths. 
+                    string sourceFile = System.IO.Path.Combine(sourcePath, fileName); //combile source and targate to move
+                    string destFile = System.IO.Path.Combine(targetPath, fileName);//combile destination and targate to move
+                    string deletefile = System.IO.Path.Combine(sourcePath, f); // delete .txt file 
+                    if (!present)
+                    {
+                        System.IO.File.Move(sourceFile, destFile); // move file to backup folder
+                        
+                    }
+                    else
+                    {
+
+                        System.IO.File.Delete(destFile);
+                        System.IO.File.Move(sourceFile, destFile); // move file to backup folder 
+                    }
+
+                    //System.IO.File.Delete(deletefile);// delete .txt files
+                    //Console.WriteLine("Processing File", f);
+                }
+                else
+                {
+                    SevenZip.SevenZipExtractor.SetLibraryPath(@"C:\Program Files\7-Zip\7z.dll");
+                    SevenZip.SevenZipExtractor exts = new SevenZip.SevenZipExtractor(DPath +  filename);
+                    exts.ExtractArchive(@"D:\Hassan\Ratings");// file ext
+                    //Console.WriteLine("File Extract");
+
+                    string fileName = filename.Substring(1, filename.Length - 1); // ext .txt file
+                    string f = filename.Substring(1, filename.Length - 5) + ".txt";
+                    string sourcePath = @"D:\Hassan\Ratings"; //source name
+                    string targetPath = @"D:\Hassan\Ratings\Backup"; // targate name
+
+                    // Use Path class to manipulate file and directory paths. 
+                    string sourceFile = System.IO.Path.Combine(sourcePath, fileName); //combile source and targate to move
+                    string destFile = System.IO.Path.Combine(targetPath, fileName);//combile destination and targate to move
+                    string deletefile = System.IO.Path.Combine(sourcePath, f); // delete .txt file 
+                    if (!present)
+                    {
+                        System.IO.File.Move(sourceFile, destFile); // move file to backup folder 
+                    }
+                    else
+                    {
+                        //Console.WriteLine("Already file present in Backup"+filename);
+                        //string fd = fname.Substring(1, fname.Length - 5) + ".txt";
+                        //string sourcePath = @"D:\Hassan\Ratings"; //source name
+                        //string deletefile = System.IO.Path.Combine(sourcePath, fd); // delete .txt file 
+                        System.IO.File.Delete(destFile);
+                        System.IO.File.Move(sourceFile, destFile); // move file to backup folder 
+
+                    }
+                        //  Console.WriteLine("File Move Successfully");
+                    //System.IO.File.Delete(deletefile);// delete .txt files
+                    
+                }
+               // for Server
+                try
+                {
+                    FtpWebRequest renameRequest = (FtpWebRequest)WebRequest.Create("ftp://172.168.100.240/Ratings" + filename);
+                    renameRequest.UseBinary = true;
+                    renameRequest.UsePassive = true;
+                    renameRequest.Credentials = new NetworkCredential("ftpuser", "ftpmm9988");
+                    renameRequest.KeepAlive = true;
+                    renameRequest.Method = WebRequestMethods.Ftp.Rename;
+                    renameRequest.RenameTo = "/Ratings/Backup/" + filename;
+                    FtpWebResponse renameResponse = (FtpWebResponse)renameRequest.GetResponse();
+                    renameResponse.Close();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+        }
+         static void deletetxtfile(string fname)
+        {
+
+            string f = fname.Substring(1, fname.Length - 5) + ".txt";
+            string sourcePath = @"D:\Hassan\Ratings"; //source name
+            string deletefile = System.IO.Path.Combine(sourcePath, f); // delete .txt file 
+            System.IO.File.Delete(deletefile);// delete .txt files
+        }
+        public static string getChannelName(string rn)
+        {
+            string strExpr = "RatingName='" + rn + "'";
+            DataRow[] dr = dtcm.Select(strExpr);
+            if (dr.Length > 0)
+            {
+                return dr[0]["channelID"].ToString();
+            }
+            else
+            {
+            return "UN";
+            }
+        }
+        public static void ProcessFile(string fp )
+        {
+            string filePath = "";
+            StreamWriter SW;
+            string logfile = filePath + "\\Log_" + DateTime.Today.ToLongDateString() + ".log";
+            //if (!File.Exists(logfile)) { File.CreateText(logfile); }
+            //File.AppendText(logfile);
+            string[] filePaths = Directory.GetFiles(fp, "*.txt");          
+
+
+            dbcon.Open();
+            string channelID, transmissionDate, startTime, endTime, duration, Rating;
+            string oneline;
+            Int32 rcount = 0;
+            Int16 fcount = 0;
+            string tcount = filePaths.Length.ToString();
+            foreach (string filename in filePaths)
+            {
+                TextReader tr = new StreamReader(filename);
+                rcount = 0;
+                //rcount++;                
+                //Application.DoEvents();
+                fcount++;
+                ///string f = filename.Substring(1, filename.Length - 5) + ".txt";
+                Console.WriteLine("Process File = \t" + filename);
+                int top = Console.CursorTop;
+                while ((oneline = tr.ReadLine()) != null)
+                {
+                    string[] line = oneline.Split(new char[] { '\t' });
+                    channelID = getChannelName(line[1]);
+                    if (!channelID.Equals("UN"))
+                    {
+                        Console.SetCursorPosition(0, top);
+                        Console.Write("\t\tRecords: {0}     ", rcount);
+
+                        transmissionDate = line[0];
+                        transmissionDate = "20" + transmissionDate.Substring(6, 2) + "-" + transmissionDate.Substring(3, 2) + "-" + transmissionDate.Substring(0, 2);
+                        startTime = line[2];
+                        duration = line[3];
+                        endTime = Convert.ToDateTime(startTime).AddSeconds(Convert.ToDouble(duration)).ToString("HH:mm:ss");  //line[3];
+                        Rating = line[4];
+                        string query = "insert into logs.trRating_temp (channelID, transmissionDate, startTime, endTime, duration, Rating) values (" + channelID + ",'" + transmissionDate + "','" + startTime + "','" + endTime + "'," + duration + "," + Rating + ")";
+                        insertintoDB(query);
+                    }
+                    else
+                    {  }
+                    rcount++;                   
+                }
+                Console.WriteLine(Totalfiles);
+                tr.Close();
+                //deletetxtfile(a);
+                Directory.Move(filename, @"D:\Hassan\Backup" + "\\" + Path.GetFileName(filename));
+            }
+            dbcon.Close();
+        }
+        public static void insertintoDB(string query)
+        {
+            try
+            {
+                MySqlCommand msc = new MySqlCommand(query, dbcon);
+                msc.ExecuteNonQuery();
+            }
+            catch (Exception e)
+            {
+               Console.WriteLine("",e);
+            }
+        }
+
+    }
+}
+5555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555
+19-02-2014 all bugs solve  :-) :-D      in 172.168.100.240
+5555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.IO;
+using System.Net;
+using System.Web;
+using FtpLib;
+using System.Text;
+using System.IO.Compression;
+using SevenZip;
+using FtpLib;
+using MySql.Data.MySqlClient;
+using System.Configuration;
+using System.Data;
+using System.Diagnostics;
+
+namespace FTP_Console_Service
+{
+    class FTP_Console_Service
+    {
+        public static string DMPath = @"D:\Hassan\", r = "Ratings";//, Dpbackup = "Backup", DPath = "Ratings";//172.168.100.198        
+
+        static string ip = System.Configuration.ConfigurationManager.AppSettings["IP"];//172.168.100.240
+        public static string FTPServer = ip;
+
+        static string name = System.Configuration.ConfigurationManager.AppSettings["User"];//ftpuser"
+        public static string userName = name;
+
+        static string pname = System.Configuration.ConfigurationManager.AppSettings["Pwd"];//ftpmm9988
+        public static string password = pname;
+
+        static string dm = System.Configuration.ConfigurationManager.AppSettings["DMp"];  //@D:\Hassan   
+        //public static string DMPath = dm;
+
+        static string dr = System.Configuration.ConfigurationManager.AppSettings["DR"];// \Ratings  (D:\)
+        public static string DPath = "/" + dr;
+
+        static string ftpr = System.Configuration.ConfigurationManager.AppSettings["ftpR"];// /Ratings (FTP)
+        public static string folderName = ftpr;
+
+        static string db = System.Configuration.ConfigurationManager.AppSettings["DB"];// \Backup (D:\)
+        public static string Dpbackup = "/"+db;//error  DMPath + DPath + Dpbackup
+
+        static string fpr = System.Configuration.ConfigurationManager.AppSettings["ftp"]; // FTP backup = /Backup
+        public static string FTPbackup = fpr; // error  
+
+        public static string Totalfiles = "",recordcounter = "";
+        public static DataTable dtcm;                
+        static ConnectionStringSettings connect = ConfigurationManager.ConnectionStrings["dbcString"];
+        static MySqlConnection dbcon = new MySqlConnection(connect.ConnectionString);
+        static string constr = connect.ConnectionString;
+        //public static DataTable dtcm;
+        public static void CursorTest()
+        {
+            int testsize = 1000000;
+            Console.WriteLine("Testing cursor position");
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+            for (int i = 0; i < testsize; i++)
+            {
+                Console.Write("\rCounting: {0}     ", i);
+            }
+            sw.Stop();
+            Console.WriteLine("\nTime using \\r: {0}", sw.ElapsedMilliseconds);
+            sw.Reset();
+            sw.Start();
+            int top = Console.CursorTop;
+            for (int i = 0; i < testsize; i++)
+            {
+                Console.SetCursorPosition(0, top);
+                Console.Write("Counting: {0}     ", i);
+            }
+            sw.Stop();
+            Console.WriteLine("\nTime using CursorLeft: {0}", sw.ElapsedMilliseconds);
+            sw.Reset();
+            sw.Start();
+            Console.Write("Counting:          ");
+            for (int i = 0; i < testsize; i++)
+            {
+                Console.Write("\b\b\b\b\b\b\b\b{0,8}", i);
+            }
+            sw.Stop();
+            Console.WriteLine("\nTime using \\b: {0}", sw.ElapsedMilliseconds);
+        }
+        static void Main(string[] args)
+        {
+          ///  CursorTest();
+            //return;
+            string query = "SELECT mlchannelMapping.LogFileName, mlchannelMapping.RatingName, rechannel.channelID FROM mlchannelMapping Inner Join rechannel ON rechannel.channelName = mlchannelMapping.LogFileName";
+            dtcm = GetData(query);//go to get data method
+
+            string[] filelist;  
+            filelist = GetFileList();// goto get file list method
+            string a;
+            int b = 0;
+            try
+            {
+                if (filelist.Length > 1)
+                {
+                    foreach (string filename in filelist)
+                    {
+                        if (filename.Length >= 5)
+                        {
+                            if (filename.Substring(filename.Length - 4) == ".rar")
+                            {
+                                //Console.WriteLine(filename);
+                                a = filename.Substring(8, filename.Length - 8);
+                                string dpwnloadPath = DMPath + @"\" +DPath;
+                                Download(DMPath +DPath, a);  //goto download method                    
+                                b++;
+                                Totalfiles = b.ToString();
+                            }
+                                else { }
+                        }
+                        else { Console.Write("No .rar file found on FTP\n"); }
+                    }
+
+                    foreach (string filename in filelist)
+                    {
+                        if (filename.Length >= 5)
+                        {
+                            if (filename.Substring(filename.Length - 4) == ".rar")
+                            {
+                                a = filename.Substring(7, filename.Length - 7);
+                                extract(DMPath + DPath,a);  //goto extract method
+                            }
+                            else { }
+                        }
+                        else { Console.Write("No .rar file found on FTP\n"); }
+                    }
+                                           
+                }
+                    else { }
+                ProcessFile(DMPath + DPath);
+                foreach (string filename in filelist)
+                {
+                    if (filename.Substring(filename.Length - 4) == ".txt")
+                    {
+                        a = filename.Substring(7, filename.Length - 7);
+                        deletetxtfile(a);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex + "No file found");
+            }
+
+            //Console.WriteLine("\n \nAll .rar files are downloaded ");                
+            Console.ReadKey();
+        }
+        public static DataTable GetData(string sqlquery)
+        {
+            if (dbcon.State != ConnectionState.Open) { dbcon.Open(); }
+            MySqlDataAdapter da = new MySqlDataAdapter();
+            da.SelectCommand = new MySqlCommand(sqlquery, dbcon);
+            DataTable dt = new DataTable();
+            da.Fill(dt);
+            dbcon.Close();
+            return dt;
+        }
+
+        public static string[] GetFileList()
+        {
+            string[] downloadFiles;
+            StringBuilder result = new StringBuilder();
+            FtpWebRequest reqFTP;
+            try
+            {
+                reqFTP = (FtpWebRequest)FtpWebRequest.Create(new Uri("ftp://" + FTPServer + folderName));
+                reqFTP.UseBinary = true;
+                reqFTP.Credentials = new NetworkCredential(userName, password);
+                reqFTP.Method = WebRequestMethods.Ftp.ListDirectory;
+                WebResponse response = reqFTP.GetResponse();
+                StreamReader reader = new StreamReader(response.GetResponseStream());                
+                string line = reader.ReadLine();
+                while (line != null)
+                {
+                    result.Append(line);
+                    result.Append("\n");
+                    line = reader.ReadLine();
+                }
+                if (result.ToString() == null)
+                {
+                    Console.WriteLine("No record found on FTP");
+                }
+                else
+                {
+                    result.Remove(result.ToString().LastIndexOf('\n'), 1);
+                    reader.Close();
+                    response.Close();
+                    return result.ToString().Split('\n');
+                }                  
+                string[] arr1 = { };
+                return arr1;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                downloadFiles = null;
+                return downloadFiles;
+            }
+        }
+
+        static void Download(string filePath, string fileName)
+        {
+            FtpWebRequest reqFTP;
+            try
+            {
+                FileStream outputStream = new FileStream(filePath + "/" + fileName, FileMode.Create);
+                reqFTP = (FtpWebRequest)FtpWebRequest.Create(new Uri("ftp://" + FTPServer  +folderName + "/"+ fileName));//folder missing
+                reqFTP.Method = WebRequestMethods.Ftp.DownloadFile;
+                reqFTP.UseBinary = true;
+                reqFTP.Credentials = new NetworkCredential(userName, password);
+                FtpWebResponse response = (FtpWebResponse)reqFTP.GetResponse();
+                Stream ftpStream = response.GetResponseStream();
+
+                long cl = response.ContentLength;
+                int bufferSize = 1048;
+                int readCount;
+                byte[] buffer = new byte[bufferSize];
+                readCount = ftpStream.Read(buffer, 0, bufferSize);
+                while (readCount > 0)
+                {
+                    outputStream.Write(buffer, 0, readCount);
+                    readCount = ftpStream.Read(buffer, 0, bufferSize);                    
+                }
+                ftpStream.Close();
+                outputStream.Close();
+                response.Close();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        }
+
+        static void extract(string Path, string filename)
+        {
+            try
+            {    
+                // for local DB
+                bool isExists = System.IO.Directory.Exists(Path + Dpbackup);
+                bool present = System.IO.File.Exists(Path +Dpbackup + filename);
+                if (!isExists)
+                {
+                    System.IO.Directory.CreateDirectory(Path + "\\Backup");
+                    SevenZip.SevenZipExtractor.SetLibraryPath(@"C:\Program Files\7-Zip\7z.dll");
+                    SevenZip.SevenZipExtractor exts = new SevenZip.SevenZipExtractor(DMPath + DPath + filename);
+                    exts.ExtractArchive(DMPath + r);// file ext
+                    Console.WriteLine("File Extract");
+                    string fileName = filename.Substring(1, filename.Length - 1); // ext .txt file
+                    string f = filename.Substring(1, filename.Length - 5) + ".txt";
+                    string sourcePath = DMPath + DPath; //source name
+                    string targetPath = DMPath + DPath + Dpbackup ; // targate name
+                    // Use Path class to manipulate file and directory paths. 
+                    string sourceFile = System.IO.Path.Combine(sourcePath, fileName); //combile source and targate to move
+                    string destFile = System.IO.Path.Combine(targetPath, fileName);//combile destination and targate to move
+                    string deletefile = System.IO.Path.Combine(sourcePath, f); // delete .txt file 
+                    if (!present)
+                    {
+                        System.IO.File.Move(sourceFile, destFile); // move file to backup folder                        
+                    }
+                    else
+                    {
+                        System.IO.File.Delete(destFile);
+                        System.IO.File.Move(sourceFile, destFile); // move file to backup folder 
+                    }
+                }
+                else
+                {
+                    SevenZip.SevenZipExtractor.SetLibraryPath(@"C:\Program Files\7-Zip\7z.dll");
+                    string fileName = filename.Substring(1, filename.Length - 1); // ext .txt file
+                    string extpath = DMPath + DPath;
+                    SevenZip.SevenZipExtractor exts = new SevenZip.SevenZipExtractor(extpath+filename);                  
+                    
+                    exts.ExtractArchive(DMPath + r);// file ext D:/Hassan/Ratings
+                    //Console.WriteLine("File Extract");                   
+                    string f = filename.Substring(1, filename.Length - 5) + ".txt";
+                    string sourcePath = DMPath + DPath; //source name
+                    string targetPath = DMPath + DPath + Dpbackup; // targate name
+                    // Use Path class to manipulate file and directory paths. 
+                    string sourceFile = System.IO.Path.Combine(sourcePath, fileName); //combile source and targate to move
+                    string destFile = System.IO.Path.Combine(targetPath, fileName);//combile destination and targate to move
+                    string deletefile = System.IO.Path.Combine(sourcePath, f); // delete .txt file 
+                    if (!present)
+                    {
+                        System.IO.File.Move(sourceFile, destFile); // move file to backup folder 
+                    }
+                    else
+                    {                       
+                        System.IO.File.Delete(destFile);
+                        System.IO.File.Move(sourceFile, destFile); // move file to backup folder
+                    }
+                }
+               // for Server
+                try
+                {
+                    FtpWebRequest renameRequest = (FtpWebRequest)WebRequest.Create("ftp://"+FTPServer+folderName + filename);
+                    renameRequest.UseBinary = true;
+                    renameRequest.UsePassive = true;
+                    renameRequest.Credentials = new NetworkCredential(userName, password);
+                    renameRequest.KeepAlive = true;
+                    renameRequest.Method = WebRequestMethods.Ftp.Rename;
+                    renameRequest.RenameTo = folderName+ FTPbackup + filename;
+                    FtpWebResponse renameResponse = (FtpWebResponse)renameRequest.GetResponse();
+                    renameResponse.Close();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+        }
+         static void deletetxtfile(string fname)
+        {
+            string f = fname.Substring(1, fname.Length - 5) + ".txt";
+            string sourcePath = DMPath + DPath; //source name
+            string deletefile = System.IO.Path.Combine(sourcePath, f); // delete .txt file 
+            System.IO.File.Delete(deletefile);// delete .txt files
+        }
+        public static string getChannelName(string rn)
+        {
+            string strExpr = "RatingName='" + rn + "'";
+            DataRow[] dr = dtcm.Select(strExpr);
+            if (dr.Length > 0)
+            {
+                return dr[0]["channelID"].ToString();
+            }
+            else
+            {
+            return "UN";
+            }
+        }
+        public static void ProcessFile(string fp )
+        {
+            string filePath = "";
+            StreamWriter SW;
+            string logfile = filePath + "\\Log_" + DateTime.Today.ToLongDateString() + ".log";
+            //if (!File.Exists(logfile)) { File.CreateText(logfile); }
+            //File.AppendText(logfile);
+            string[] filePaths = Directory.GetFiles(fp, "*.txt");
+            dbcon.Open();
+            string channelID, transmissionDate, startTime, endTime, duration, Rating;
+            string oneline;
+            Int32 rcount = 0;
+            Int16 fcount = 0;
+            string tcount = filePaths.Length.ToString();
+            foreach (string filename in filePaths)
+            {
+                TextReader tr = new StreamReader(filename);
+                rcount = 0;
+                //rcount++;                
+                //Application.DoEvents();
+                fcount++;
+                ///string f = filename.Substring(1, filename.Length - 5) + ".txt";
+                Console.WriteLine("Process File = \t" + filename);
+                int top = Console.CursorTop;
+                while ((oneline = tr.ReadLine()) != null)
+                {
+                    string[] line = oneline.Split(new char[] { '\t' });
+                    channelID = getChannelName(line[1]);
+                    if (!channelID.Equals("UN"))
+                    {
+                        Console.SetCursorPosition(0, top);
+                        Console.Write("\t\tRecords: {0}     ", rcount);
+                        transmissionDate = line[0];
+                        transmissionDate = "20" + transmissionDate.Substring(6, 2) + "-" + transmissionDate.Substring(3, 2) + "-" + transmissionDate.Substring(0, 2);
+                        startTime = line[2];
+                        duration = line[3];
+                        endTime = Convert.ToDateTime(startTime).AddSeconds(Convert.ToDouble(duration)).ToString("HH:mm:ss");  //line[3];
+                        Rating = line[4];
+                        string query = "insert into logs.trRating(channelID, transmissionDate, startTime, endTime, duration, Rating) values (" + channelID + ",'" + transmissionDate + "','" + startTime + "','" + endTime + "'," + duration + "," + Rating + ")";
+                        insertintoDB(query);
+                    }
+                    else
+                    {  }
+                    rcount++;                   
+                }
+                Console.WriteLine("\n\n\t\tTotal Files Process = "+ Totalfiles);
+                tr.Close();
+                //deletetxtfile(a);
+                //Directory.Move(filename, @"D:\Hassan\Backup" + "\\" + Path.GetFileName(filename));
+            }
+            dbcon.Close();
+        }
+        public static void insertintoDB(string query)
+        {
+            try
+            {
+                MySqlCommand msc = new MySqlCommand(query, dbcon);
+                msc.ExecuteNonQuery();
+            }
+            catch (Exception e)
+            {
+               Console.WriteLine("",e);
+            }
+        }
+
+    }
+}
+
+
+=========================================================================================
+21-02-2014 
+ftp file move to backup 
+insert query issue resolves 
+
+
+777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.IO;
+using System.Net;
+using System.Web;
+using FtpLib;
+using System.Text;
+using System.IO.Compression;
+using SevenZip;
+using FtpLib;
+using MySql.Data.MySqlClient;
+using System.Configuration;
+using System.Data;
+using System.Diagnostics;
+using System.Net.Mail;
+
+namespace FTP_Console_Service
+{
+    class FTP_Console_Service
+    {
+        //public static string DMPath = @"D:\Hassan\", r = "Ratings";//, Dpbackup = "Backup", DPath = "Ratings";//172.168.100.198        
+       // public static string email1, email2, smtp, from, to, subject, email, pwd, slen, elen;
+        
+        static string ip = System.Configuration.ConfigurationManager.AppSettings["IP"];//172.168.100.240       ftp.medialogic.com.pk
+        public static string FTPServer = ip;
+
+        static string name = System.Configuration.ConfigurationManager.AppSettings["User"];//ftpuser"               mm@medialogic.com.pk
+        public static string userName = name;
+
+        static string pname = System.Configuration.ConfigurationManager.AppSettings["Pwd"];//ftpmm9988              "blank6724"
+        public static string password = pname;
+
+        static string dm = System.Configuration.ConfigurationManager.AppSettings["DMp"];  //@D:\Hassan   
+        public static string DMPath = dm;
+
+        static string dr = System.Configuration.ConfigurationManager.AppSettings["DR"];// \Ratings  (D:\)
+        public static string DPath =  dr;
+
+        static string ftpr = System.Configuration.ConfigurationManager.AppSettings["ftpR"];// /Ratings (FTP)
+        public static string folderName = ftpr;
+
+        static string db = System.Configuration.ConfigurationManager.AppSettings["DB"];// \Backup (D:\)
+        public static string Dpbackup = "/"+db;//error  DMPath + DPath + Dpbackup
+
+        static string fpr = System.Configuration.ConfigurationManager.AppSettings["ftp"]; // FTP backup = /Backup
+        public static string FTPbackup = fpr; // error
+
+        static string sam = System.Configuration.ConfigurationManager.AppSettings["sm"]; //172.168.101.4
+        public static string smtp = sam;
+
+        static string fm = System.Configuration.ConfigurationManager.AppSettings["frm"]; //danial.ssuet@gmail.com
+        public static string from = fm;
+
+        static string ttt = System.Configuration.ConfigurationManager.AppSettings["too"];  //danialkhan90@yahoo.com
+        public static string to = ttt;
+
+        static string sb = System.Configuration.ConfigurationManager.AppSettings["sub"];  ///Test Mail"
+        public static string subject = sb;
+
+        static string em = System.Configuration.ConfigurationManager.AppSettings["emil"];  //danial.ssuet@gmail.com
+        public static string email = em;
+
+        static string pw = System.Configuration.ConfigurationManager.AppSettings["passwd"];  //*********
+        public static string pwd = pw;
+        public static string mailfilelist;
+
+        public static string Totalfiles = "",recordcounter = "";
+        public static DataTable dtcm;                
+        static ConnectionStringSettings connect = ConfigurationManager.ConnectionStrings["dbcString"];
+        static MySqlConnection dbcon = new MySqlConnection(connect.ConnectionString);
+        static string constr = connect.ConnectionString;
+        public static string f;
+        
+        public static void CursorTest()
+        {
+            int testsize = 1000000;
+            Console.WriteLine("Testing cursor position");
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+            for (int i = 0; i < testsize; i++)
+            {
+                Console.Write("\rCounting: {0}     ", i);
+            }
+            sw.Stop();
+            Console.WriteLine("\nTime using \\r: {0}", sw.ElapsedMilliseconds);
+            sw.Reset();
+            sw.Start();
+            int top = Console.CursorTop;
+            for (int i = 0; i < testsize; i++)
+            {
+                Console.SetCursorPosition(0, top);
+                Console.Write("Counting: {0}     ", i);
+            }
+            sw.Stop();
+            Console.WriteLine("\nTime using CursorLeft: {0}", sw.ElapsedMilliseconds);
+            sw.Reset();
+            sw.Start();
+            Console.Write("Counting:          ");
+            for (int i = 0; i < testsize; i++)
+            {
+                Console.Write("\b\b\b\b\b\b\b\b{0,8}", i);
+            }
+            sw.Stop();
+            Console.WriteLine("\nTime using \\b: {0}", sw.ElapsedMilliseconds);
+        }
+        static void Main(string[] args)
+        {
+          ///  CursorTest();
+            //return;
+            string query = "SELECT mlchannelMapping.LogFileName, mlchannelMapping.RatingName, rechannel.channelID FROM mlchannelMapping Inner Join rechannel ON rechannel.channelName = mlchannelMapping.LogFileName";
+            dtcm = GetData(query);//go to get data method
+
+            string[] filelist;  
+            filelist = GetFileList();// goto get file list method
+            string a;
+            int b = 0;
+            try
+            {
+                if (filelist.Length > 1)
+                {
+                    foreach (string filename in filelist)
+                    {
+                        if (filename.Length >= 5)
+                        {
+                            if (filename.Substring(filename.Length - 4) == ".rar")
+                            {
+                                //a = filename.Substring(8, filename.Length - 8);
+                                string dpwnloadPath = DMPath + @"\" +DPath;
+                                Download(DMPath + DPath, filename);  //goto download method                    
+                                b++;
+                                Totalfiles = b.ToString();
+                            }
+                                else { }
+                        }
+                        else {} 
+                    }
+
+                    foreach (string filename in filelist)
+                    {
+                        if (filename.Length >= 5)
+                        {
+                            if (filename.Substring(filename.Length - 4) == ".rar")
+                            {
+                                mailfilelist = mailfilelist + filename + "\n";
+                                a = filename.Substring(0, 18) + ".txt";
+                                extract(DMPath + DPath, filename);  //goto extract method
+                            }
+                            else { }
+                        }
+                        else { }
+                    }                      
+                }
+                    else { }
+                ProcessFile(DMPath + DPath);
+                foreach (string filename in filelist)
+                {
+                    if (filename.Length >= 5)
+                    {
+                        if (filename.Substring(filename.Length - 4) == ".rar")
+                        {
+                            a = filename.Substring(0, 18) + ".txt";
+                            deletetxtfile(a);                        // delete txt files
+                        }
+                        else { }
+                    }
+                    else { }
+                }
+
+                foreach (string filename in filelist)
+                {
+                    if (filename.Length >= 5)
+                    {
+                        if (filename.Substring(filename.Length - 4) == ".rar")
+                        {
+                           // a = filename.Substring(7, filename.Length - 7);                           
+                            ftpmove(filename);                        // ftp move
+                        }
+                        else { }
+                    }
+                    else { }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex + "No file found");
+            }
+            if (Totalfiles == "")
+            { Console.WriteLine("No File Found in FTP Ratings"); }
+            else
+            {
+                mail(mailfilelist);
+                Console.WriteLine("\n\n\t\tTotal Files Process = " + Totalfiles + "\n\n\n\n");
+            }
+            Console.ReadKey();
+        }
+        public static DataTable GetData(string sqlquery)
+        {
+            if (dbcon.State != ConnectionState.Open) { dbcon.Open(); }
+            MySqlDataAdapter da = new MySqlDataAdapter();
+            da.SelectCommand = new MySqlCommand(sqlquery, dbcon);
+            DataTable dt = new DataTable();
+            da.Fill(dt);
+            dbcon.Close();
+            return dt;
+        }
+
+        public static string[] GetFileList()
+        {
+            string[] downloadFiles;
+            StringBuilder result = new StringBuilder();
+            FtpWebRequest reqFTP;
+            try
+            {
+                reqFTP = (FtpWebRequest)FtpWebRequest.Create(new Uri("ftp://" + FTPServer + folderName));
+                reqFTP.UseBinary = true;
+                reqFTP.Credentials = new NetworkCredential(userName, password);
+                reqFTP.Method = WebRequestMethods.Ftp.ListDirectory;
+                WebResponse response = reqFTP.GetResponse();
+                StreamReader reader = new StreamReader(response.GetResponseStream());                
+                string line = reader.ReadLine();
+                while (line != null)
+                {
+                    result.Append(line);
+                    result.Append("\n");
+                    line = reader.ReadLine();
+                }
+                if (result.ToString() == null)
+                {
+                    Console.WriteLine("No record found on FTP");
+                }
+                else
+                {
+                    result.Remove(result.ToString().LastIndexOf('\n'), 1);
+                    reader.Close();
+                    response.Close();
+                    return result.ToString().Split('\n');
+                }                  
+                string[] arr1 = { };
+                return arr1;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                downloadFiles = null;
+                return downloadFiles;
+            }
+        }
+
+        static void Download(string filePath, string fileName)
+        {
+            try
+            {
+                FtpWebRequest request = (FtpWebRequest)WebRequest.Create("ftp://ftp.medialogic.com.pk/Ratings/" + fileName); //ftp://ftp.medialogic.com.pk/Ratings/
+                request.Method = WebRequestMethods.Ftp.DownloadFile;
+                FileStream outputStream = new FileStream(filePath + "/" + fileName, FileMode.Create);
+                // This example assumes the FTP site uses anonymous logon.
+                request.Credentials = new NetworkCredential(userName, password);
+                FtpWebResponse response = (FtpWebResponse)request.GetResponse();
+                Stream responseStream = response.GetResponseStream();
+                //StreamReader reader = new StreamReader(responseStream);
+                long cl = response.ContentLength;
+                int bufferSize = 1048;
+                int readCount;
+                int top = Console.CursorTop;
+                byte[] buffer = new byte[bufferSize];
+                readCount = responseStream.Read(buffer, 0, bufferSize);
+                while (readCount > 0)
+                {
+                    outputStream.Write(buffer, 0, readCount);
+                    readCount = responseStream.Read(buffer, 0, bufferSize);
+                }
+                //Console.WriteLine(reader.ReadToEnd());
+                responseStream.Close();
+                outputStream.Close();
+                response.Close();
+                Console.SetCursorPosition(0, top);
+                Console.WriteLine("Download Complete{0} " , fileName);
+
+                //reader.Close();
+                response.Close();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        }
+
+        static void extract(string Path, string filename)
+        {
+            try
+            {    
+                // for local DB
+                 bool isExists = System.IO.Directory.Exists(Path + Dpbackup);
+                bool present = System.IO.File.Exists(Path +Dpbackup + filename);
+                if (!isExists)
+                    System.IO.Directory.CreateDirectory(Path + "\\Backup");
+                    
+               
+                    SevenZip.SevenZipExtractor.SetLibraryPath(@"C:\Program Files\7-Zip\7z.dll");
+                    string fileName = filename.Substring(1, filename.Length - 1); // ext .txt file
+                    string extpath = DMPath + DPath+"\\";
+                    SevenZip.SevenZipExtractor exts = new SevenZip.SevenZipExtractor(extpath+filename);
+
+                    exts.ExtractArchive(extpath);// file ext D:/Hassan/Ratings
+                    //Console.WriteLine("File Extract");                   
+                    f = filename.Substring(0, filename.Length - 5) + ".txt";
+                    string sourcePath = DMPath + DPath; //source name
+                    string targetPath = DMPath + DPath + Dpbackup; // targate name
+                    // Use Path class to manipulate file and directory paths. 
+                    string sourceFile = System.IO.Path.Combine(sourcePath, filename); //combile source and targate to move
+                    string destFile = System.IO.Path.Combine(targetPath, filename);//combile destination and targate to move
+                    string deletefile = System.IO.Path.Combine(sourcePath, f); // delete .txt file 
+                    if (present)
+                    {
+                        System.IO.File.Move(sourceFile, destFile); // move file to backup folder 
+                    }
+                    else
+                    {                       
+                        System.IO.File.Delete(destFile);
+                        System.IO.File.Move(sourceFile, destFile); // move file to backup folder
+                    }
+                
+               // for Server
+                
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+        }
+         static void deletetxtfile(string fname)
+        {
+            string f = fname.Substring(0, fname.Length - 4) + ".txt";
+            string sourcePath = DMPath + DPath; //source name
+            string deletefile = System.IO.Path.Combine(sourcePath, f); // delete .txt file 
+            System.IO.File.Delete(deletefile);// delete .txt files
+        }
+        public static string getChannelName(string rn)
+        {
+            string strExpr = "RatingName='" + rn + "'";
+            DataRow[] dr = dtcm.Select(strExpr);
+            if (dr.Length > 0)
+            {
+                return dr[0]["channelID"].ToString();
+            }
+            else
+            {
+            return "UN";
+            }
+        }
+        public static void ProcessFile(string fp )
+        {
+            string filePath = "";
+            StreamWriter SW;
+            string logfile = filePath + "\\Log_" + DateTime.Today.ToLongDateString() + ".log";
+            //if (!File.Exists(logfile)) { File.CreateText(logfile); }
+            //File.AppendText(logfile);
+            string[] filePaths = Directory.GetFiles(fp, "*.txt");
+            string channelID, transmissionDate, startTime, endTime, duration, Rating;
+            string oneline;
+            Int32 rcount = 0;
+            Int16 fcount = 0;
+            string tcount = filePaths.Length.ToString();
+            foreach (string filename in filePaths)
+            {
+                TextReader tr = new StreamReader(filename);
+                rcount = 0;
+                //rcount++;                
+                //Application.DoEvents();
+                fcount++;
+                ///string f = filename.Substring(1, filename.Length - 5) + ".txt";
+                Console.WriteLine("Process File = \t" + filename);
+                int top = Console.CursorTop;
+                dbcon.Open();
+                try
+                {
+                    while ((oneline = tr.ReadLine()) != null)
+                    {
+                        string[] line = oneline.Split(new char[] { '\t' });
+                        channelID = getChannelName(line[1]);
+                        if (!channelID.Equals("UN"))
+                        {
+                            Console.SetCursorPosition(0, top);
+                            Console.Write("\t\tRecords: {0}     ", rcount);
+                            transmissionDate = line[0];
+                            transmissionDate = "20" + transmissionDate.Substring(6, 2) + "-" + transmissionDate.Substring(3, 2) + "-" + transmissionDate.Substring(0, 2);
+                            startTime = line[2];
+                            duration = line[3];
+                            endTime = Convert.ToDateTime(startTime).AddSeconds(Convert.ToDouble(duration)).ToString("HH:mm:ss");  //line[3];
+                            Rating = line[4];
+                            string query = "insert into logs.trRating(channelID, transmissionDate, startTime, endTime, duration, Rating) values (" + channelID + ",'" + transmissionDate + "','" + startTime + "','" + endTime + "'," + duration + "," + Rating + ")";
+                            insertintoDB(query);
+
+                        }
+                        else
+                        { }
+                        rcount++;
+                    }
+                }
+                catch(Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+                finally
+                {
+                    tr.Close();
+                    dbcon.Close();
+                }
+                //Directory.Move(filename, @"D:\Hassan\Backup" + "\\" + Path.GetFileName(filename));
+            }
+
+        }
+        public static void insertintoDB(string query)
+        {
+            try
+            {
+                MySqlCommand msc = new MySqlCommand(query, dbcon);
+                msc.ExecuteNonQuery();
+                
+            }
+            catch (Exception e)
+            {
+                if (e.ToString() == "Duplicate entry '29-2014-02-02-00:01:30' for key 'PRIMARY' ")
+                { }
+                else
+                {
+                   // Console.WriteLine(e);
+                }
+            }
+        }
+        public static void ftpmove(string fn)
+        {           
+            try
+            {
+                string localPath = DMPath + DPath + "\\" + db + "\\";
+                string fileName = fn;
+
+                FtpWebRequest requestFTPUploader = (FtpWebRequest)WebRequest.Create("ftp://" + FTPServer + folderName + FTPbackup + "/" + fn);
+                requestFTPUploader.Credentials = new NetworkCredential(userName, password);
+                requestFTPUploader.Method = WebRequestMethods.Ftp.UploadFile;
+
+                FileInfo fileInfo = new FileInfo(localPath + fileName);
+                FileStream fileStream = fileInfo.OpenRead();
+
+                int bufferLength = 1048;
+                byte[] buffer = new byte[bufferLength];
+
+                Stream uploadStream = requestFTPUploader.GetRequestStream();
+                int contentLength = fileStream.Read(buffer, 0, bufferLength);
+               
+                while (contentLength != 0)
+                {
+                    uploadStream.Write(buffer, 0, contentLength);
+                    contentLength = fileStream.Read(buffer, 0, bufferLength);
+                }
+                uploadStream.Close();
+                fileStream.Close();
+                requestFTPUploader = null;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+            int top = Console.CursorTop;
+            Console.SetCursorPosition(0, top);
+            Console.WriteLine("File {0} move to FTP backup",fn);
+           
+            try
+            {
+                FtpWebRequest renameRequest = (FtpWebRequest)WebRequest.Create("ftp://" + FTPServer + folderName + "/" + fn);
+                renameRequest.Credentials = new NetworkCredential(userName, password);
+                renameRequest.Method = WebRequestMethods.Ftp.DeleteFile;
+                renameRequest.RenameTo = "ftp://" + FTPServer + folderName + "/" + fn;// Test.jpg
+                FtpWebResponse renameResponse = (FtpWebResponse)renameRequest.GetResponse();
+                renameRequest.GetResponse().Close();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+        }
+        public static void mail(string mfile)
+        {
+            MailMessage message = new MailMessage();
+            SmtpClient smtps = new SmtpClient(smtp);
+            message.To.Add(to);
+            message.Subject = subject;
+            message.From = new MailAddress(from); //See the note afterwards...
+            message.Body = "Following Ratings are received and uploaded in Media monitors Database\n\n\n" + mfile + "\n\nRegards,\nMedia monitors Team\n\n" + "Note: This is System generated email";
+
+
+            //  smtp.EnableSsl = true;
+            // smtp.Port = 587;
+            smtps.DeliveryMethod = SmtpDeliveryMethod.Network;
+            smtps.Credentials = new System.Net.NetworkCredential(email, pwd);
+            smtps.Send(message);
+            Console.WriteLine("Message sent successfully");
+        }
+    
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

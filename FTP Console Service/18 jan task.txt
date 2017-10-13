@@ -1,0 +1,9 @@
+Total Files Download: 3
+Processing: Rating.12.02.txt
+Record Found: 4
+Processing: Rating.12.03.txt
+Record Found: 4
+
+Download
+Extract
+InsertintoDB
