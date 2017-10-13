@@ -1,8 +1,0 @@
-FTP =  ftp.medialogic.com.pk
-User = mm@medialogic.com.pk
-Pwd = blank6724
-/Rating
-
-FTP   = 172.168.100.240
-User = ftpuser
-Pwd  = ftpmm9988
